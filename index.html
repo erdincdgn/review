@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ozgur Dogan - English Grammar Practice</title>
+    <title>GrammarMaster - English Grammar Practice</title>
     <style>
         * {
             margin: 0;
@@ -457,6 +457,27 @@
             color: #0050b3;
         }
 
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: var(--gray);
+        }
+
+        .loading-spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid var(--primary);
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
         @media (max-width: 768px) {
             .header h1 {
                 font-size: 2em;
@@ -493,13 +514,19 @@
 
     <div class="container">
         <header class="header">
-            <h1>📝 Oscar</h1>
+            <h1>📝 GrammarMaster</h1>
             <p>Master English Grammar Through Interactive Practice</p>
         </header>
 
         <div class="quiz-container">
+            <!-- Loading Screen -->
+            <div id="loadingScreen" class="loading">
+                <div class="loading-spinner"></div>
+                <h3>Loading Grammar Questions...</h3>
+            </div>
+
             <!-- Start Screen -->
-            <div id="startScreen" class="start-screen">
+            <div id="startScreen" class="start-screen hidden">
                 <h2 style="margin-bottom: 20px; color: var(--dark);">Choose a Grammar Topic</h2>
                 <div class="category-selection">
                     <div class="category-card" onclick="startQuiz('partsOfSpeech')">
@@ -590,407 +617,8 @@
     </div>
 
     <script>
-        // Grammar Quiz Data
-        const quizData = {
-            partsOfSpeech: [
-                {
-                    question: "Identify the part of speech for the word 'quickly' in the sentence: 'She runs quickly.'",
-                    sentence: "She runs quickly.",
-                    options: ["Noun", "Adjective", "Adverb", "Verb"],
-                    correct: 2,
-                    tip: "Adverbs modify verbs, adjectives, or other adverbs. 'Quickly' describes how she runs."
-                },
-                {
-                    question: "Which word in the sentence is a preposition? 'The book is on the table.'",
-                    sentence: "The book is on the table.",
-                    options: ["book", "is", "on", "table"],
-                    correct: 2,
-                    tip: "Prepositions show relationships between nouns and other words. Common prepositions include on, in, at, by, for."
-                },
-                {
-                    question: "Identify the conjunction in this sentence: 'I wanted to go, but I was too tired.'",
-                    sentence: "I wanted to go, but I was too tired.",
-                    options: ["wanted", "but", "too", "tired"],
-                    correct: 1,
-                    tip: "Conjunctions connect words, phrases, or clauses. Common conjunctions include and, but, or, so, yet."
-                },
-                {
-                    question: "What part of speech is the word 'beautiful' in: 'She has beautiful hair.'?",
-                    sentence: "She has beautiful hair.",
-                    options: ["Adverb", "Noun", "Adjective", "Verb"],
-                    correct: 2,
-                    tip: "Adjectives modify nouns or pronouns. 'Beautiful' describes the noun 'hair'."
-                },
-                {
-                    question: "Identify the pronoun in this sentence: 'They went to the store after school.'",
-                    sentence: "They went to the store after school.",
-                    options: ["went", "store", "after", "They"],
-                    correct: 3,
-                    tip: "Pronouns replace nouns. Common pronouns include he, she, it, they, we, I, you."
-                },
-                {
-                    question: "Which word is an article in this sentence? 'A cat sat on the windowsill.'",
-                    sentence: "A cat sat on the windowsill.",
-                    options: ["cat", "sat", "A", "windowsill"],
-                    correct: 2,
-                    tip: "Articles are a type of determiner. The three articles are 'a', 'an', and 'the'."
-                },
-                {
-                    question: "What part of speech is 'happiness' in the sentence: 'Happiness is important.'?",
-                    sentence: "Happiness is important.",
-                    options: ["Verb", "Adjective", "Adverb", "Noun"],
-                    correct: 3,
-                    tip: "Nouns represent people, places, things, or ideas. 'Happiness' is an abstract noun representing an idea."
-                },
-                {
-                    question: "Identify the interjection in this sentence: 'Wow! That was amazing.'",
-                    sentence: "Wow! That was amazing.",
-                    options: ["Wow", "That", "was", "amazing"],
-                    correct: 0,
-                    tip: "Interjections express emotion and are often followed by exclamation points. Examples include Wow, Oh, Oops, Hey."
-                },
-                {
-                    question: "Which word is a verb in this sentence? 'The children play in the park every day.'",
-                    sentence: "The children play in the park every day.",
-                    options: ["children", "play", "park", "day"],
-                    correct: 1,
-                    tip: "Verbs express action or state of being. 'Play' is an action verb in this sentence."
-                },
-                {
-                    question: "What part of speech is 'very' in the sentence: 'The movie was very interesting.'?",
-                    sentence: "The movie was very interesting.",
-                    options: ["Adjective", "Noun", "Adverb", "Preposition"],
-                    correct: 2,
-                    tip: "'Very' is an adverb that intensifies the adjective 'interesting'. Adverbs that intensify are called intensifiers."
-                }
-            ],
-            tenses: [
-                {
-                    question: "Choose the correct verb form: 'She _____ to the store yesterday.'",
-                    sentence: "She _____ to the store yesterday.",
-                    options: ["go", "goes", "went", "going"],
-                    correct: 2,
-                    tip: "The word 'yesterday' indicates past tense, so we use the simple past form 'went'."
-                },
-                {
-                    question: "Which sentence uses the present perfect tense correctly?",
-                    sentence: "",
-                    options: [
-                        "I have seen that movie last week.",
-                        "She has been studying for three hours.",
-                        "They have completed the project tomorrow.",
-                        "He has ate breakfast this morning."
-                    ],
-                    correct: 1,
-                    tip: "Present perfect (have/has + past participle) connects past to present. 'Has been studying' shows an action that started in the past and continues to the present."
-                },
-                {
-                    question: "Select the correct future tense form: 'By next year, I _____ my degree.'",
-                    sentence: "By next year, I _____ my degree.",
-                    options: ["will complete", "will have completed", "will be completing", "completes"],
-                    correct: 1,
-                    tip: "Future perfect tense (will have + past participle) indicates an action that will be completed before a specific time in the future."
-                },
-                {
-                    question: "Which sentence uses the past continuous tense correctly?",
-                    sentence: "",
-                    options: [
-                        "I was reading when the phone rang.",
-                        "She is cooking dinner right now.",
-                        "They will be watching TV at 8 PM.",
-                        "He had been working all day."
-                    ],
-                    correct: 0,
-                    tip: "Past continuous (was/were + -ing) describes an ongoing action in the past that was interrupted by another action."
-                },
-                {
-                    question: "Choose the correct present tense form: 'The train _____ at 6 AM every day.'",
-                    sentence: "The train _____ at 6 AM every day.",
-                    options: ["leave", "leaves", "leaving", "is leaving"],
-                    correct: 1,
-                    tip: "For habits and routines, we use the simple present tense. With third-person singular subjects (he, she, it), we add '-s' to the verb."
-                },
-                {
-                    question: "Which sentence uses the future continuous tense correctly?",
-                    sentence: "",
-                    options: [
-                        "I will study tomorrow.",
-                        "She will have finished by then.",
-                        "They will be traveling this time next week.",
-                        "He will has arrived by 5 PM."
-                    ],
-                    correct: 2,
-                    tip: "Future continuous (will be + -ing) describes an action that will be in progress at a specific time in the future."
-                },
-                {
-                    question: "Select the correct past perfect form: 'By the time we arrived, they _____.'",
-                    sentence: "By the time we arrived, they _____.",
-                    options: ["left", "had left", "have left", "leave"],
-                    correct: 1,
-                    tip: "Past perfect (had + past participle) describes an action that was completed before another action in the past."
-                },
-                {
-                    question: "Which sentence uses the present perfect continuous correctly?",
-                    sentence: "",
-                    options: [
-                        "I have been waiting here for two hours.",
-                        "She had been working before she quit.",
-                        "They will be playing tennis tomorrow.",
-                        "He is studying right now."
-                    ],
-                    correct: 0,
-                    tip: "Present perfect continuous (have/has been + -ing) emphasizes the duration of an action that started in the past and continues to the present."
-                },
-                {
-                    question: "Choose the correct verb form: 'If I _____ rich, I would travel the world.'",
-                    sentence: "If I _____ rich, I would travel the world.",
-                    options: ["am", "was", "were", "will be"],
-                    correct: 2,
-                    tip: "This is a second conditional sentence (hypothetical situation). In if-clauses of second conditionals, we use 'were' for all subjects."
-                },
-                {
-                    question: "Which sentence uses the future perfect continuous correctly?",
-                    sentence: "",
-                    options: [
-                        "By next year, I will have been working here for ten years.",
-                        "She will be studying when we arrive.",
-                        "They will complete the project by Friday.",
-                        "He has been waiting for an hour."
-                    ],
-                    correct: 0,
-                    tip: "Future perfect continuous (will have been + -ing) emphasizes the duration of an action up to a specific point in the future."
-                }
-            ],
-            punctuation: [
-                {
-                    question: "Which sentence is punctuated correctly?",
-                    sentence: "",
-                    options: [
-                        "My favorite colors are blue red and green.",
-                        "My favorite colors are blue, red, and green.",
-                        "My favorite colors are blue red, and green.",
-                        "My favorite colors are, blue, red, and green."
-                    ],
-                    correct: 1,
-                    tip: "Use commas to separate items in a list of three or more. Place a comma before the conjunction 'and' in a list (Oxford comma)."
-                },
-                {
-                    question: "Choose the correctly punctuated sentence:",
-                    sentence: "",
-                    options: [
-                        "Its a beautiful day isnt it",
-                        "It's a beautiful day, isn't it?",
-                        "Its a beautiful day, isn't it?",
-                        "It's a beautiful day, isnt it."
-                    ],
-                    correct: 1,
-                    tip: "Use an apostrophe in contractions (it's = it is). Use a comma before a tag question and end with a question mark."
-                },
-                {
-                    question: "Which sentence uses the semicolon correctly?",
-                    sentence: "",
-                    options: [
-                        "I have a big test tomorrow; I can't go out tonight.",
-                        "I have a big test tomorrow; but I can't go out tonight.",
-                        "I have a big test tomorrow; and I can't go out tonight.",
-                        "I have a big test tomorrow; because I can't go out tonight."
-                    ],
-                    correct: 0,
-                    tip: "Use a semicolon to connect two closely related independent clauses. Don't use a semicolon with coordinating conjunctions like but, and, or because."
-                },
-                {
-                    question: "Select the correctly punctuated sentence:",
-                    sentence: "",
-                    options: [
-                        "The book which I read yesterday was interesting.",
-                        "The book, which I read yesterday, was interesting.",
-                        "The book which I read yesterday, was interesting.",
-                        "The book, which I read yesterday was interesting."
-                    ],
-                    correct: 1,
-                    tip: "Use commas to set off non-restrictive clauses (clauses that add extra information but aren't essential to the sentence's meaning)."
-                },
-                {
-                    question: "Which sentence is punctuated correctly for direct address?",
-                    sentence: "",
-                    options: [
-                        "John can you help me with this?",
-                        "John, can you help me with this?",
-                        "John can you help me with this.",
-                        "John, can you help me with this."
-                    ],
-                    correct: 1,
-                    tip: "When directly addressing someone, place a comma after their name. End the sentence with appropriate punctuation based on whether it's a question or statement."
-                },
-                {
-                    question: "Choose the correctly punctuated sentence with quotations:",
-                    sentence: "",
-                    options: [
-                        "\"I'm leaving now\" she said.",
-                        "\"I'm leaving now,\" she said.",
-                        "\"I'm leaving now\" she said.",
-                        "\"I'm leaving now\" she said."
-                    ],
-                    correct: 1,
-                    tip: "Place commas and periods inside quotation marks. Use a comma to separate dialogue from the attribution (she said)."
-                },
-                {
-                    question: "Which sentence uses the colon correctly?",
-                    sentence: "",
-                    options: [
-                        "I need to buy: milk, eggs, and bread.",
-                        "The ingredients are: milk, eggs, and bread.",
-                        "I need to buy milk, eggs, and bread.",
-                        "I need to buy milk, eggs: and bread."
-                    ],
-                    correct: 2,
-                    tip: "Don't use a colon after a verb like 'are' or 'buy'. Use a colon after a complete sentence to introduce a list, explanation, or quotation."
-                },
-                {
-                    question: "Select the correctly punctuated sentence:",
-                    sentence: "",
-                    options: [
-                        "Her birthday is June 15 1995.",
-                        "Her birthday is June 15, 1995.",
-                        "Her birthday is June 15, 1995,",
-                        "Her birthday is June, 15, 1995."
-                    ],
-                    correct: 1,
-                    tip: "Use a comma to separate the day and year in a date. Don't use a comma between the month and day."
-                },
-                {
-                    question: "Which sentence correctly uses parentheses?",
-                    sentence: "",
-                    options: [
-                        "The meeting (which was scheduled for Monday) has been postponed.",
-                        "The meeting (which was scheduled for Monday), has been postponed.",
-                        "The meeting, (which was scheduled for Monday) has been postponed.",
-                        "The meeting (which was scheduled for Monday has been postponed)."
-                    ],
-                    correct: 0,
-                    tip: "Use parentheses to enclose additional information that's not essential to the sentence. Place the period outside the closing parenthesis."
-                },
-                {
-                    question: "Choose the correctly punctuated sentence with an apostrophe:",
-                    sentence: "",
-                    options: [
-                        "The students books are on the table.",
-                        "The student's books are on the table.",
-                        "The students' books are on the table.",
-                        "The students books' are on the table."
-                    ],
-                    correct: 2,
-                    tip: "Use an apostrophe to show possession. For plural nouns ending in -s, add only an apostrophe after the -s (students')."
-                }
-            ],
-            sentenceStructure: [
-                {
-                    question: "Identify the sentence type: 'Although it was raining, we went for a walk.'",
-                    sentence: "Although it was raining, we went for a walk.",
-                    options: ["Simple", "Compound", "Complex", "Compound-Complex"],
-                    correct: 2,
-                    tip: "A complex sentence has one independent clause and at least one dependent clause. 'Although it was raining' is the dependent clause."
-                },
-                {
-                    question: "Which sentence is a simple sentence?",
-                    sentence: "",
-                    options: [
-                        "She studied hard, but she didn't pass the test.",
-                        "Because she studied hard, she passed the test.",
-                        "She studied hard for the test.",
-                        "She studied hard, and she passed the test, so she celebrated."
-                    ],
-                    correct: 2,
-                    tip: "A simple sentence has one independent clause with one subject-verb combination. 'She studied' is the subject-verb pair."
-                },
-                {
-                    question: "Identify the sentence type: 'I wanted to go to the party, but I was too tired, so I stayed home.'",
-                    sentence: "I wanted to go to the party, but I was too tired, so I stayed home.",
-                    options: ["Simple", "Compound", "Complex", "Compound-Complex"],
-                    correct: 1,
-                    tip: "A compound sentence has at least two independent clauses joined by coordinating conjunctions (for, and, nor, but, or, yet, so)."
-                },
-                {
-                    question: "Which sentence has a compound subject?",
-                    sentence: "",
-                    options: [
-                        "The dog barked loudly.",
-                        "Mary and John went to the park.",
-                        "The teacher who is new is very kind.",
-                        "She sang and danced beautifully."
-                    ],
-                    correct: 1,
-                    tip: "A compound subject has two or more subjects connected by a coordinating conjunction. 'Mary and John' is the compound subject."
-                },
-                {
-                    question: "Identify the sentence type: 'After she finished her homework, she watched TV, and then she went to bed.'",
-                    sentence: "After she finished her homework, she watched TV, and then she went to bed.",
-                    options: ["Simple", "Compound", "Complex", "Compound-Complex"],
-                    correct: 3,
-                    tip: "A compound-complex sentence has at least two independent clauses and at least one dependent clause."
-                },
-                {
-                    question: "Which sentence has a compound predicate?",
-                    sentence: "",
-                    options: [
-                        "The cat and dog played together.",
-                        "She laughed and cried during the movie.",
-                        "The students who studied hard passed the test.",
-                        "When the rain stopped, we went outside."
-                    ],
-                    correct: 1,
-                    tip: "A compound predicate has two or more verbs connected by a coordinating conjunction that share the same subject. 'Laughed and cried' is the compound predicate."
-                },
-                {
-                    question: "Identify the fragment in this group:",
-                    sentence: "",
-                    options: [
-                        "The students studied for the exam.",
-                        "Because it was raining outside.",
-                        "She bought groceries at the store.",
-                        "They arrived early for the meeting."
-                    ],
-                    correct: 1,
-                    tip: "A sentence fragment is an incomplete sentence. 'Because it was raining outside' is a dependent clause that cannot stand alone as a complete sentence."
-                },
-                {
-                    question: "Which sentence is a run-on sentence?",
-                    sentence: "",
-                    options: [
-                        "I went to the store, and I bought milk.",
-                        "She likes coffee, he prefers tea.",
-                        "The children played in the park until sunset.",
-                        "When the alarm rang, I woke up immediately."
-                    ],
-                    correct: 1,
-                    tip: "A run-on sentence incorrectly joins two independent clauses without proper punctuation or conjunction. 'She likes coffee, he prefers tea' needs a period or semicolon."
-                },
-                {
-                    question: "Identify the sentence with correct parallel structure:",
-                    sentence: "",
-                    options: [
-                        "She likes hiking, swimming, and to ride bikes.",
-                        "She likes to hike, to swim, and to ride bikes.",
-                        "She likes hiking, swimming, and bike riding.",
-                        "She likes to hike, swimming, and bike riding."
-                    ],
-                    correct: 2,
-                    tip: "Parallel structure uses the same pattern of words to show that two or more ideas have the same level of importance. 'Hiking, swimming, and bike riding' all use the -ing form."
-                },
-                {
-                    question: "Which sentence uses correct subject-verb agreement?",
-                    sentence: "",
-                    options: [
-                        "The list of items were on the table.",
-                        "Each of the students have a textbook.",
-                        "The team of players is practicing now.",
-                        "Neither the teacher nor the students were present."
-                    ],
-                    correct: 2,
-                    tip: "When a subject is separated from its verb by a prepositional phrase, the verb agrees with the subject, not the noun in the phrase. 'Team' is singular, so use 'is'."
-                }
-            ]
-        };
+        // Quiz Data (will be loaded from JSON)
+        let quizData = {};
 
         // Game State
         let currentCategory = '';
@@ -1002,8 +630,31 @@
         let totalTime = 0;
         let quizStartTime = 0;
 
+        // Load quiz data from JSON
+        async function loadQuizData() {
+            try {
+                const response = await fetch('grammar-questions.json');
+                if (!response.ok) {
+                    throw new Error('Failed to load quiz questions');
+                }
+                quizData = await response.json();
+                
+                // Hide loading screen and show start screen
+                document.getElementById('loadingScreen').classList.add('hidden');
+                document.getElementById('startScreen').classList.remove('hidden');
+            } catch (error) {
+                console.error('Error loading quiz data:', error);
+                document.getElementById('loadingScreen').innerHTML = `
+                    <h3 style="color: var(--danger);">Error Loading Questions</h3>
+                    <p>Unable to load grammar questions. Please check your connection and refresh the page.</p>
+                    <button class="btn btn-primary" onclick="location.reload()" style="margin-top: 20px;">Retry</button>
+                `;
+            }
+        }
+
         // Initialize
         function init() {
+            loadQuizData();
             loadHighScores();
         }
 
